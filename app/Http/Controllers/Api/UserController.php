@@ -95,28 +95,29 @@ class UserController extends Controller
                 "status" =>'failed',
             ]);
         }
+
     }
 ///////////////////////.......forget Api........./////////////////////
 
-    public function forget(Request $request){
-        $request->validate([
-            'email' => 'required|exists:Users,email',
-        ]);
-        $user= User::whereEmail($request->email);
-        if($user->first()) {
-            $code = rand(1001, 99999);
-            $user->update(['code'=> $code]);
-//           $mail= Mail::to($user_mail->email)->send(new SignUp($code));
-            return  response()->json([
-                "status" =>'success',
-                "mail_OTP" =>$code,
+            public function forget(Request $request){
+            $request->validate([
+                'email' => 'required|exists:Users,email',
             ]);
-        }else{
-            return  response()->json([
-                "status" =>'failed',
-            ]);
+            $user= User::whereEmail($request->email);
+            if($user->first()) {
+                $code = rand(1001, 99999);
+                $user->update(['code'=> $code]);
+                Mail::to($user->first()->email)->send(new SignUp($code));
+                return  response()->json([
+                    "status" =>'success',
+                    "mail_OTP" =>$code,
+                ]);
+            }else{
+                return  response()->json([
+                    "status" =>'failed',
+                ]);
+            }
         }
-    }
     ///////////////////////.......forget Api Section........./////////////////////
     public function reset(Request $request){
         $request->validate([
