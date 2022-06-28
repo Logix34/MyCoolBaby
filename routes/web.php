@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\SubCategoriesController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers;
+use App\Http\Controllers\SubcategoriesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,43 +18,29 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('layouts.login');
+    return view('login');
 });
+Route::get('login',[AdminController::class,'index'])->name('login') ;
 
+Route::post('verify_login',[AdminController::class,'login'])->name('verify_login');
 
-/////////////////////////........Login Section......///////////////////
-Route::get('login',[AdminController::class,'login'])->name('login');
-Route::post('verify_login',[AdminController::class,'create'])->name('verify_login');
-
-
-/////////////////////////........MiddleWare Auth  Section......///////////////////
-
-Route::group(['middleware' => 'auth'], function () {
-
-    Route::get('dashboard',[AdminController::class,'index'])->name('dashboard');
-
-    /////////////////////////........Users  Section......///////////////////
-
-    Route::get('users',[UserController::class,'index'])->name('users');
-    Route::get('users_list',[UserController::class,'list'])->name('users_list');
-    Route::get('/change/status/{id}', [UserController::class,'ChangeStatus'])->name('change_status');
-
-    /////////////////////////........Categories  Section......///////////////////
-
-    Route::get('categories', [CategoriesController::class,'index'])->name("categories");
-    Route::get('add_categories', [CategoriesController::class,'addCategory'])->name("add_categories");
-    Route::get('edit/category/{id}', [CategoriesController::class,'editCategory'])->name('edit/category');
-    Route::get('categories/delete/{id}',[CategoriesController::class,'destroy'])->name('categories/delete');
-    Route::post('submit_categories', [CategoriesController::class,'store'])->name("submit_categories");
-
-    /////////////////////////........SubCategories  Section......///////////////////
-    Route::get('sub_categories', [SubCategoriesController::class,'index'])->name("sub_categories");
-    Route::get('add/sub_categories', [SubCategoriesController::class,'subCategory'])->name("add/sub_categories");
-    Route::post('submit/sub_categories', [SubCategoriesController::class,'store'])->name("submit/sub_categories");
-    Route::get('edit/subcategory/{id}', [SubCategoriesController::class,'edit'])->name('edit/subcategory');
-    Route::get('sub_categories/delete/{id}',[SubCategoriesController::class,'destroy'])->name('sub_categories/delete');
-
-
-});
-/////////////////////////........logout Section......///////////////////
 Route::post('logout',[AdminController::class,'logout'])->name('logout');
+
+    Route::group(['middleware' => 'auth'], function () {
+
+        Route::get('dashboard',[AdminController::class,'dashboard'])->name('dashboard');
+        //////////////////////////.......Category Section .........../////////
+        Route::get('categories',[CategoryController::class,'index'])->name('categories');
+        Route::get('edit/category/{id}', [CategoryController::class,'editCategory'])->name('edit/category');
+        Route::post('add_Categories',[CategoryController::class,'store'])->name('add_Categories');
+        Route::post('update_Categories',[CategoryController::class,'update'])->name('update_Categories');
+        Route::get('delete_Category/{id}',[CategoryController::class,'destroy'])->name('delete');
+
+        //////////////////////////.......Subcategory Section .........../////////
+
+        Route::get('sub_categories',[SubcategoriesController::class,'index'])->name('sub_categories');
+        Route::get('edit/subcategory/{id}', [SubcategoriesController::class,'edit'])->name('edit/subcategory');
+        Route::post('add_subCategories',[SubcategoriesController::class,'store'])->name('add_subCategories');
+        Route::post('update_subcategories',[SubcategoriesController::class,'update'])->name('update_subcategories');
+        Route::get('delete_subCategory/{id}',[SubcategoriesController::class,'destroy'])->name('delete');
+    });

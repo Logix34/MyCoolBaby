@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -10,21 +9,25 @@ use Illuminate\Support\Facades\Session;
 class AdminController extends Controller
 {
 
-    public function login()
+    public function index()
     {
-       return view('layouts.login');
+        return view('login');
     }
-
-    public function create(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required',
             'password' => 'required|min:7',
 
         ]);
-        $remember=$request['remember'];
+
         try {
-            if (Auth::attempt(['email' => $request['email'], 'password' => $request['password']],$remember)) {
+            if (Auth::attempt(['username' => $request['email'], 'password' => $request['password']],)) {
+
+                Session::flash('success', 'Login Successfully');
+                return redirect('dashboard');
+            } elseif (Auth::attempt(['email' => $request['email'], 'password' => $request['password']], )) {
+
                 Session::flash('success', 'Login Successfully');
                 return redirect('dashboard');
             } else {
@@ -37,49 +40,25 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+
+
+    public function dashboard()
     {
-        //
+        return view('Admin.Dashboard');
     }
 
-
-    public function index()
-    {
-        $total_user=User::all()->count();
-        return view('layouts.dashboard',compact('total_user'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-
-    public function logout(Request $request)
-    {
-        Auth::logout();
+    public function logout(Request $request){
+            Auth::logout();
         Session::flash('success','Logout Successfully');
-        return redirect('login');
+        return redirect('/');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+
     public function destroy($id)
     {
         //

@@ -7,21 +7,17 @@ use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
-class SubCategoriesController extends Controller
+class SubcategoriesController extends Controller
 {
 
     public function index()
     {
-
-         $subcategories=SubCategory::with('category')->get();
-        return view('layouts.SubCategories.index',compact('subcategories'),);
-    }
-    public function subCategory()
-    {
         $categories=Category::all();
-        return view('layouts.SubCategories.add',compact('categories'));
+        $subcategories=SubCategory::with('category')->get();
+       return view('Subcategories.index',compact('subcategories','categories'));
     }
-        public function store(Request $request)
+
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required',
@@ -44,7 +40,7 @@ class SubCategoriesController extends Controller
                 $square_image= $file->move('uploads/Sub_Categories/square_images/' , $filename);
 
             }
-            if ($request['id'] == ""){
+
                 SubCategory::create([
                     'name'=> $request['name'],
                     'category_id'=> $request['category_id'],
@@ -53,28 +49,51 @@ class SubCategoriesController extends Controller
                 ]);
                 Session::flash('success','Sub Category Create Successfully');
                 return redirect('sub_categories');
-            }else {
-                $category= SubCategory::whereId($request['id'])->first();
-                $category->update([
-                    'name'=> $request['name'],
-                    'category_id'=> $request['category_id'],
-                    'banner_image'=> $banner_image,
-                    'square_image' => $square_image,
-                ]);
-                Session::flash('success','Sub Category update Successfully');
-                return redirect('sub_categories');
-            }
         }catch (\Exception $exception){
             return redirect()->back()->with('error', $exception->getMessage() .' '.$exception->getLine());
 
         }
     }
-    public function edit($id)
+    public function edit($id){
+        return SubCategory::whereId($id)->first();
+    }
+    public function update(Request $request)
     {
-        $categories=Category::all();
-        $subcategories= SubCategory::all();
-        $detail=SubCategory::whereId($id)->first();
-        return view("layouts.SubCategories.add",['detail'=>$detail, 'categories'=>$categories,'subcategories'=>$subcategories]);
+        $request->validate([
+            'name' => 'required',
+            'category_id' => 'required',
+
+        ]);
+        try {
+            $subcategory=SubCategory::whereId($request['id'])->first();
+            $banner_image=$subcategory->banner_image;
+            $square_image=$subcategory->square_image;
+
+            if ($request->hasFile('banner_image')) {
+                $file = $request->file('banner_image');
+                $extention = $file->getClientOriginalExtension();
+                $filename = time() . '.' . $extention;
+                $banner_image= $file->move('uploads/banner_images/' , $filename);
+
+            }
+            if ($request->hasFile('square_image')) {
+                $file = $request->file('square_image');
+                $extention = $file->getClientOriginalExtension();
+                $filename = time() . '.' . $extention;
+                $square_image= $file->move('uploads/square_images/' , $filename);
+            }
+            $subcategory->update([
+                'name'=> $request['name'],
+                'category_id'=> $request['category_id'],
+                'banner_image'=> $banner_image,
+                'square_image' => $square_image,
+            ]);
+            Session::flash('success','Sub Category update Successfully');
+            return redirect('sub_categories');
+
+        }catch (\Exception $exception){
+            return redirect()->back()->with('error', $exception->getMessage() .' '.$exception->getLine());
+        }
     }
     public function destroy($id)
     {
